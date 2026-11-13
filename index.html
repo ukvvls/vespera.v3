@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080d1c">
+<meta name="description" content="VESPERA — Build your system, one step at a time.">
+<title>VESPERA — Player System</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#080d1c; --bg2:#101a36; --glass:rgba(255,255,255,.055);
+  --glass-strong:rgba(255,255,255,.085); --line:rgba(220,235,255,.15);
+  --line-hi:rgba(190,225,255,.27); --text:#f4f7ff; --muted:#9eacc9;
+  --cyan:#8ee8ff; --blue:#7bb8ff; --violet:#b7a0ff; --mint:#8ff4d1;
+  --danger:#ff9eaf; --shadow:0 22px 70px rgba(0,0,0,.32);
+  --radius:26px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; min-height:100vh; color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
+  background:
+    radial-gradient(ellipse at 12% 8%,rgba(61,155,255,.19),transparent 34%),
+    radial-gradient(ellipse at 88% 18%,rgba(145,105,255,.18),transparent 32%),
+    radial-gradient(ellipse at 55% 95%,rgba(34,204,210,.11),transparent 35%),
+    linear-gradient(145deg,#070b17 0%,#0b1430 48%,#10132b 100%);
+  background-attachment:fixed;
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;z-index:-1;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:42px 42px;mask-image:linear-gradient(to bottom,black,transparent 88%);
+}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.app{width:min(1120px,100%);margin:auto;padding:22px 18px 112px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 20px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{
+  width:46px;height:46px;border-radius:16px;display:grid;place-items:center;
+  background:linear-gradient(145deg,rgba(142,232,255,.25),rgba(183,160,255,.19));
+  border:1px solid var(--line-hi);box-shadow:0 0 30px rgba(106,189,255,.15),inset 0 1px rgba(255,255,255,.3);
+  font-size:22px
+}
+.brand h1{font-size:18px;letter-spacing:2.5px;margin:0;font-weight:850}
+.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:1.7px;margin-top:3px}
+.top-actions{display:flex;gap:8px}
+.icon-btn,.soft-btn,.primary-btn,.danger-btn,.nav-btn,.chip-btn{
+  border:1px solid var(--line);color:var(--text);background:rgba(255,255,255,.055);
+  backdrop-filter:blur(18px) saturate(155%);-webkit-backdrop-filter:blur(18px) saturate(155%);
+  transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease;
+}
+.icon-btn:hover,.soft-btn:hover,.chip-btn:hover,.nav-btn:hover{transform:translateY(-2px);border-color:var(--line-hi);background:rgba(255,255,255,.095)}
+.icon-btn{width:42px;height:42px;border-radius:15px;font-size:17px}
+.panel{
+  background:linear-gradient(145deg,rgba(255,255,255,.105),rgba(255,255,255,.035) 55%,rgba(120,170,255,.045));
+  border:1px solid var(--line-hi);border-radius:var(--radius);
+  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.2),inset 0 -1px 0 rgba(255,255,255,.035);
+  backdrop-filter:blur(28px) saturate(165%);-webkit-backdrop-filter:blur(28px) saturate(165%);
+}
+.hero{padding:24px;display:grid;grid-template-columns:1.4fr .8fr;gap:20px;overflow:hidden;position:relative}
+.hero:after{content:"";position:absolute;width:240px;height:240px;border-radius:50%;background:rgba(93,193,255,.11);filter:blur(65px);left:-70px;top:-110px;pointer-events:none}
+.eyebrow{color:var(--cyan);font-size:11px;font-weight:800;letter-spacing:2px}
+.hero h2{font-size:clamp(26px,5vw,42px);line-height:1.18;margin:10px 0}
+.hero p{color:var(--muted);line-height:1.8;margin:0;max-width:600px}
+.hero-side{display:flex;align-items:center;justify-content:center}
+.level-orb{
+ width:168px;height:168px;border-radius:50%;display:grid;place-items:center;text-align:center;
+ background:radial-gradient(circle at 32% 25%,rgba(255,255,255,.24),transparent 30%),linear-gradient(145deg,rgba(104,220,255,.2),rgba(156,124,255,.16));
+ border:1px solid rgba(191,231,255,.32);box-shadow:0 0 0 10px rgba(255,255,255,.018),0 0 55px rgba(106,191,255,.16),inset 0 0 28px rgba(255,255,255,.08);
+}
+.level-orb strong{display:block;font-size:36px;line-height:1.1}
+.level-orb span{font-size:10px;letter-spacing:2px;color:var(--muted)}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:26px 2px 13px}
+.section-head h2{font-size:18px;margin:0}
+.section-head p{font-size:12px;color:var(--muted);margin:5px 0 0}
+.muted{color:var(--muted)}
+.grid{display:grid;gap:12px}
+.stats-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat-card{padding:16px;min-height:112px;position:relative;overflow:hidden}
+.stat-card:before{content:"";position:absolute;width:90px;height:90px;border-radius:50%;background:rgba(127,190,255,.1);filter:blur(28px);top:-35px;left:-25px}
+.stat-top{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:12px}
+.stat-icon{font-size:19px}
+.stat-value{font-size:26px;font-weight:850;margin-top:12px;letter-spacing:.2px}
+.stat-sub{font-size:10px;color:var(--muted);margin-top:3px}
+.progress-wrap{height:7px;border-radius:20px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:12px}
+.progress{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--violet));border-radius:20px;transition:width .4s ease}
+.two-col{grid-template-columns:1.15fr .85fr}
+.task-list{display:grid;gap:9px}
+.task-row{display:flex;align-items:center;gap:12px;padding:13px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid rgba(220,235,255,.1);transition:.18s ease}
+.task-row:hover{background:rgba(255,255,255,.075);border-color:var(--line-hi)}
+.task-check{width:24px;height:24px;flex:0 0 24px;border-radius:8px;border:1px solid rgba(180,220,255,.36);background:rgba(255,255,255,.04);display:grid;place-items:center;color:#071426}
+.task-row.done .task-check{background:linear-gradient(135deg,var(--mint),var(--cyan));border-color:transparent}
+.task-copy{flex:1;min-width:0}
+.task-copy strong{font-size:13px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task-copy small{font-size:10px;color:var(--muted)}
+.xp-pill{font-size:10px;color:var(--cyan);white-space:nowrap}
+.task-row.done .task-copy strong{text-decoration:line-through;color:var(--muted)}
+.soft-btn,.primary-btn,.danger-btn,.chip-btn{border-radius:14px;padding:10px 14px;font-size:12px}
+.primary-btn{background:linear-gradient(120deg,rgba(111,219,255,.9),rgba(178,157,255,.92));color:#071326;border:0;font-weight:850;box-shadow:0 8px 26px rgba(103,177,255,.18)}
+.primary-btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(103,177,255,.28)}
+.danger-btn{color:#ffd8df;border-color:rgba(255,158,175,.24);background:rgba(255,110,140,.08)}
+.chip-btn{padding:8px 12px}
+.streak-box{padding:18px}
+.streak-number{font-size:34px;font-weight:900}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:14px}
+.day-cell{text-align:center;padding:10px 3px;border-radius:13px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}
+.day-cell b{display:block;font-size:11px}
+.day-cell i{display:block;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.14);margin:8px auto 0}
+.day-cell.active i{background:var(--mint);box-shadow:0 0 12px rgba(143,244,209,.6)}
+.page{display:none;opacity:0;transform:translateY(9px);filter:blur(2px)}
+.page.active{display:block;animation:pageIn .34s cubic-bezier(.2,.75,.25,1) both}
+@keyframes pageIn{to{opacity:1;transform:translateY(0);filter:blur(0)}}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 0 rgba(142,232,255,0)}50%{box-shadow:0 0 28px rgba(142,232,255,.12)}}
+.page-title{margin:6px 2px 18px}
+.page-title h2{font-size:26px;margin:0 0 7px}
+.page-title p{color:var(--muted);font-size:13px;margin:0;line-height:1.7}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.input,.select,.textarea{
+ width:100%;border:1px solid rgba(210,230,255,.16);border-radius:14px;background:rgba(4,10,25,.34);
+ color:var(--text);padding:12px 13px;outline:none;min-width:0
+}
+.input::placeholder,.textarea::placeholder{color:#8291b1}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.field label{display:block;font-size:11px;color:var(--muted);margin:0 0 7px}
+.field{min-width:0}
+.form-card{padding:18px}
+.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed rgba(210,230,255,.18);border-radius:18px;font-size:13px}
+.hud-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.hud-card{padding:17px;min-height:120px;position:relative;overflow:hidden}
+.hud-card:after{content:"";position:absolute;inset:auto -20px -50px auto;width:110px;height:110px;border-radius:50%;background:rgba(131,171,255,.12);filter:blur(25px)}
+.hud-label{font-size:11px;color:var(--muted)}
+.hud-value{font-size:28px;font-weight:900;margin-top:13px}
+.hud-foot{font-size:10px;color:var(--muted);margin-top:5px}
+.fitness-banner{padding:20px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.fitness-banner h3{margin:0 0 5px;font-size:17px}
+.fitness-banner p{margin:0;color:var(--muted);font-size:12px;line-height:1.7}
+.toggle{appearance:none;width:46px;height:26px;border-radius:30px;background:rgba(255,255,255,.15);border:1px solid var(--line-hi);position:relative;cursor:pointer;flex:0 0 46px}
+.toggle:before{content:"";position:absolute;width:18px;height:18px;top:3px;right:3px;border-radius:50%;background:#b8c5dc;transition:.2s}
+.toggle:checked{background:rgba(103,219,201,.35)}
+.toggle:checked:before{right:23px;background:var(--mint)}
+.chat-shell{padding:18px;display:flex;flex-direction:column;min-height:520px}
+.chat-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:14px}
+.chat-head h3{margin:0;font-size:16px}
+.chat-log{flex:1;display:flex;flex-direction:column;gap:10px;padding:16px 0;max-height:440px;overflow:auto}
+.bubble{max-width:88%;padding:13px 15px;border-radius:18px;line-height:1.75;font-size:13px;white-space:pre-wrap}
+.bubble.bot{align-self:flex-start;background:rgba(255,255,255,.07);border:1px solid var(--line)}
+.bubble.user{align-self:flex-end;background:linear-gradient(135deg,rgba(111,219,255,.2),rgba(178,157,255,.19));border:1px solid rgba(160,210,255,.22)}
+.chat-form{display:flex;gap:9px;align-items:end;border-top:1px solid var(--line);padding-top:14px}
+.chat-form textarea{min-height:48px;max-height:120px;resize:vertical}
+.chat-shortcuts{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.settings-list{display:grid;gap:10px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px;border-radius:17px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09)}
+.setting-row strong{font-size:13px;display:block}
+.setting-row small{font-size:10px;color:var(--muted);display:block;margin-top:4px}
+.bottom-nav{
+ position:fixed;z-index:20;bottom:max(12px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+ width:min(690px,calc(100% - 22px));display:grid;grid-template-columns:repeat(5,1fr);gap:5px;
+ padding:8px;border-radius:22px;background:rgba(13,22,44,.72);border:1px solid rgba(208,231,255,.19);
+ box-shadow:0 15px 55px rgba(0,0,0,.4),inset 0 1px rgba(255,255,255,.15);
+ backdrop-filter:blur(28px) saturate(170%);-webkit-backdrop-filter:blur(28px) saturate(170%);
+}
+.nav-btn{border:0;background:transparent;border-radius:15px;padding:9px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10px}
+.nav-btn span:first-child{font-size:18px;line-height:1.1}
+.nav-btn.active{color:var(--text);background:linear-gradient(135deg,rgba(126,220,255,.17),rgba(174,148,255,.16));box-shadow:inset 0 0 0 1px rgba(194,225,255,.13)}
+.toast{position:fixed;z-index:40;top:18px;left:50%;transform:translate(-50%,-20px);opacity:0;pointer-events:none;background:rgba(15,29,55,.92);border:1px solid var(--line-hi);padding:11px 16px;border-radius:14px;box-shadow:var(--shadow);font-size:12px;transition:.25s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.footer{text-align:center;color:#7584a4;font-size:10px;letter-spacing:1.8px;margin:34px 0 0}
+.modal-backdrop{position:fixed;z-index:30;inset:0;background:rgba(1,5,15,.62);display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(8px)}
+.modal-backdrop.show{display:flex}
+.modal{width:min(480px,100%);padding:20px}
+.modal h3{margin:0 0 15px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-start;margin-top:15px}
+.note{font-size:11px;color:var(--muted);line-height:1.7}
+.hidden{display:none!important}
+@media(max-width:760px){
+ .app{padding:15px 13px 108px}
+ .hero{grid-template-columns:1fr;padding:20px}
+ .hero-side{justify-content:flex-start}
+ .level-orb{width:118px;height:118px}
+ .level-orb strong{font-size:28px}
+ .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .two-col{grid-template-columns:1fr}
+ .hud-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .section-head{margin-top:22px}
+}
+@media(max-width:390px){
+ .hud-grid{grid-template-columns:1fr 1fr}
+ .stat-value{font-size:23px}
+ .nav-btn{font-size:9px}
+ .nav-btn span:first-child{font-size:17px}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">✦</div>
+      <div><h1>VESPERA</h1><small>BUILD YOUR SYSTEM · ONE STEP AT A TIME</small></div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="profileBtn" aria-label="الملف الشخصي">◉</button>
+      <button class="icon-btn" id="settingsBtn" aria-label="الإعدادات">⚙</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page active" id="page-home" data-page="home">
+      <div class="panel hero">
+        <div>
+          <div class="eyebrow">PLAYER SYSTEM / DAILY QUESTS</div>
+          <h2>ابنِ نظامك،<br><span style="color:var(--cyan)">خطوة كل يوم.</span></h2>
+          <p id="welcomeText">كل إنجاز صغير بيضيف خطوة لتقدمك. اختار مهامك وابدأ يومك.</p>
+          <div class="toolbar" style="margin-top:18px">
+            <button class="primary-btn" data-go="tasks">ابدأ مهام اليوم ←</button>
+            <button class="soft-btn" data-go="stats">عرض الإحصائيات</button>
+          </div>
+        </div>
+        <div class="hero-side">
+          <div class="level-orb"><div><span>LEVEL</span><strong id="heroLevel">1</strong><span id="heroRank">ROOKIE</span></div></div>
+        </div>
+      </div>
+
+      <div class="section-head"><div><h2>لوحة اللاعب</h2><p>ملخص تقدمك الحالي</p></div><span class="eyebrow">LIVE STATUS</span></div>
+      <div class="grid stats-grid">
+        <article class="panel stat-card"><div class="stat-top"><span>إجمالي XP</span><span class="stat-icon">✧</span></div><div class="stat-value" id="totalXP">0</div><div class="stat-sub">نقاط الخبرة</div></article>
+        <article class="panel stat-card"><div class="stat-top"><span>مهام مكتملة</span><span class="stat-icon">✓</span></div><div class="stat-value" id="completedCount">0</div><div class="stat-sub">إجمالي الإنجازات</div></article>
+        <article class="panel stat-card"><div class="stat-top"><span>سلسلة النشاط</span><span class="stat-icon">⚡</span></div><div class="stat-value" id="streakCount">0</div><div class="stat-sub">يوم نشط</div></article>
+        <article class="panel stat-card"><div class="stat-top"><span>مهام اليوم</span><span class="stat-icon">◈</span></div><div class="stat-value" id="todayProgress">0/0</div><div class="stat-sub">إنجاز اليوم</div></article>
+      </div>
+
+      <div class="section-head"><div><h2>مهام اليوم</h2><p>اختر ما تريد إنجازه اليوم</p></div><button class="soft-btn" data-go="tasks">كل المهام</button></div>
+      <div class="grid two-col">
+        <div class="panel" style="padding:17px">
+          <div class="task-list" id="homeTasks"></div>
+          <div class="empty hidden" id="homeEmpty">لا توجد مهام لليوم بعد. أضف أول مهمة وابدأ.</div>
+        </div>
+        <div class="panel streak-box">
+          <div class="eyebrow">WEEKLY ACTIVITY</div>
+          <div style="display:flex;align-items:end;justify-content:space-between;margin-top:8px"><div><div class="streak-number" id="weekDone">0</div><div class="muted" style="font-size:11px">إنجاز هذا الأسبوع</div></div><span style="font-size:28px">▦</span></div>
+          <div class="week-grid" id="homeWeek"></div>
+          <p class="note">العلامة المضيئة تعني أنك أنجزت مهمة واحدة على الأقل في هذا اليوم.</p>
+        </div>
+      </div>
+      <div class="section-head"><div><h2>الوحدات الاختيارية</h2><p>فعّل فقط ما تحتاجه</p></div></div>
+      <div class="panel fitness-banner">
+        <div><h3>🏋️ VESPERA FITNESS</h3><p id="fitnessBannerText">وحدة رياضية اختيارية ومنفصلة عن مهامك اليومية.</p></div>
+        <button class="soft-btn" id="fitnessBannerBtn">إعداد الوحدة</button>
+      </div>
+    </section>
+
+    <section class="page" id="page-tasks" data-page="tasks">
+      <div class="page-title"><div class="eyebrow">DAILY QUEST CATALOG</div><h2>المهام اليومية</h2><p>أضف مهام الدراسة والحياة اليومية، وحدد إنجازك بنفسك.</p></div>
+      <div class="panel form-card" style="margin-bottom:14px">
+        <div class="section-head" style="margin:0 0 12px"><div><h2 style="font-size:15px">إضافة مهمة</h2><p>المهام لا تُضاف إلا باختيارك</p></div><span>＋</span></div>
+        <div class="form-grid">
+          <div class="field"><label for="taskPreset">اختيار سريع</label><select class="select" id="taskPreset">
+            <option value="">اختر مهمة جاهزة</option>
+            <optgroup label="الدراسة">
+              <option>مذاكرة اللغة العربية</option><option>مذاكرة اللغة الإنجليزية</option><option>مذاكرة الرياضيات</option><option>مذاكرة الفيزياء</option><option>مذاكرة الكيمياء</option><option>مذاكرة الأحياء</option><option>مذاكرة التاريخ</option><option>مذاكرة الجغرافيا</option><option>مذاكرة اللغة الفرنسية</option><option>مذاكرة اللغة الألمانية</option><option>مذاكرة التربية الدينية</option>
+            </optgroup>
+            <optgroup label="مهام يومية"><option>ترتيب الغرفة</option><option>تنظيم المكتب</option><option>قراءة</option><option>مراجعة خطة اليوم</option><option>مساعدة في المنزل</option>
+            </optgroup>
+          </select></div>
+          <div class="field"><label for="taskXP">نقاط XP</label><select class="select" id="taskXP"><option value="10">10 XP</option><option value="15" selected>15 XP</option><option value="20">20 XP</option><option value="25">25 XP</option></select></div>
+        </div>
+        <div class="field" style="margin-top:10px"><label for="taskName">اسم المهمة (اختياري لو اخترت مهمة جاهزة)</label><input class="input" id="taskName" placeholder="مثال: مراجعة درس الدولة الأموية"></div>
+        <div class="toolbar" style="margin-top:12px"><button class="primary-btn" id="addTaskBtn">＋ إضافة إلى مهام اليوم</button></div>
+      </div>
+      <div class="toolbar" style="justify-content:space-between;margin-bottom:12px">
+        <div><strong id="tasksDateLabel">مهام اليوم</strong><div class="note">تُحفظ على هذا الجهاز فقط</div></div>
+        <button class="soft-btn" id="clearDoneBtn">إخفاء المكتمل</button>
+      </div>
+      <div class="panel" style="padding:15px"><div class="task-list" id="allTasks"></div><div class="empty hidden" id="tasksEmpty">قائمة المهام فارغة. أضف مهمة من الأعلى.</div></div>
+    </section>
+
+    <section class="page" id="page-stats" data-page="stats">
+      <div class="page-title"><div class="eyebrow">PLAYER ANALYTICS / HUD</div><h2>إحصائيات اللاعب</h2><p>شبكة تقدم مختصرة على شكل Gaming HUD.</p></div>
+      <div class="grid hud-grid">
+        <article class="panel hud-card"><div class="hud-label">TOTAL EXPERIENCE</div><div class="hud-value" id="hudXP">0</div><div class="hud-foot">إجمالي نقاط الخبرة</div></article>
+        <article class="panel hud-card"><div class="hud-label">CURRENT LEVEL</div><div class="hud-value" id="hudLevel">1</div><div class="hud-foot">مستواك الحالي</div></article>
+        <article class="panel hud-card"><div class="hud-label">COMPLETED QUESTS</div><div class="hud-value" id="hudCompleted">0</div><div class="hud-foot">مهمة مكتملة</div></article>
+        <article class="panel hud-card"><div class="hud-label">ACTIVE DAYS</div><div class="hud-value" id="hudDays">0</div><div class="hud-foot">أيام بها إنجاز</div></article>
+        <article class="panel hud-card"><div class="hud-label">TODAY RATE</div><div class="hud-value" id="hudRate">0%</div><div class="hud-foot">نسبة إنجاز اليوم</div></article>
+        <article class="panel hud-card"><div class="hud-label">NEXT LEVEL</div><div class="hud-value" id="hudNext">100</div><div class="hud-foot">XP متبقية للمستوى التالي</div></article>
+      </div>
+      <div class="section-head"><div><h2>تقدم المستوى</h2><p>كل مهمة مكتملة تضيف نقاط خبرة</p></div></div>
+      <div class="panel form-card">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><strong id="rankLabel">ROOKIE</strong><span class="muted" id="levelProgressText">0 / 100 XP</span></div>
+        <div class="progress-wrap" style="height:10px"><div class="progress" id="levelProgress"></div></div>
+      </div>
+      <div class="section-head"><div><h2>نشاط آخر 7 أيام</h2><p>سجل إنجازاتك اليومية</p></div></div>
+      <div class="panel streak-box"><div class="week-grid" id="statsWeek"></div></div>
+    </section>
+
+    <section class="page" id="page-ai" data-page="ai">
+      <div class="page-title"><div class="eyebrow">CLOUD ASSISTANT / VESPERA</div><h2>VESPERA AI</h2><p>مساعد لتنظيم المهام، تقسيم المذاكرة، واقتراح خطط واقعية.</p></div>
+      <div class="panel chat-shell">
+        <div class="chat-head"><div><h3>✧ VESPERA AI</h3><div class="note" id="aiStatus">المساعد المحلي جاهز — الربط السحابي اختياري</div></div><button class="soft-btn" id="clearChatBtn">مسح المحادثة</button></div>
+        <div class="chat-log" id="chatLog"><div class="bubble bot">أهلًا! أقدر أساعدك في ترتيب مهامك وتقسيم وقت المذاكرة. جرّب: «أضف مهمة مذاكرة التاريخ» أو «رتّب لي مهام اليوم».</div></div>
+        <form class="chat-form" id="chatForm">
+          <textarea class="textarea" id="chatInput" placeholder="اكتب طلبك..." rows="2"></textarea>
+          <button class="primary-btn" type="submit">إرسال</button>
+        </form>
+        <div class="chat-shortcuts">
+          <button class="chip-btn" data-chat="رتّب لي مهام اليوم">رتّب يومي</button>
+          <button class="chip-btn" data-chat="أضف مهمة مذاكرة التاريخ">أضف مذاكرة التاريخ</button>
+          <button class="chip-btn" data-chat="اعرض المهام المتبقية اليوم">المهام المتبقية</button>
+        </div>
+        <p class="note" style="margin-top:12px">بدون عنوان Worker، تعمل أوامر المساعد الأساسية محليًا. لتفعيل الردود السحابية، يُضبط عنوان Worker في ملف الإعدادات بعد نشره بشكل آمن.</p>
+      </div>
+    </section>
+
+    <section class="page" id="page-more" data-page="more">
+      <div class="page-title"><div class="eyebrow">SYSTEM CONTROL</div><h2>المزيد والإعدادات</h2><p>تحكم في ملف اللاعب والوحدات الاختيارية والنسخ الاحتياطي.</p></div>
+      <div class="panel form-card" style="margin-bottom:13px">
+        <div class="section-head" style="margin:0 0 13px"><div><h2 style="font-size:15px">ملف اللاعب</h2><p>اسم عرض اختياري</p></div><span>◉</span></div>
+        <div class="field"><label for="playerName">اسم اللاعب</label><input class="input" id="playerName" maxlength="24" placeholder="اكتب اسم العرض"></div>
+        <button class="primary-btn" id="saveProfileBtn" style="margin-top:11px">حفظ الاسم</button>
+      </div>
+      <div class="panel form-card" style="margin-bottom:13px">
+        <div class="fitness-banner" style="padding:0">
+          <div><h3>🏋️ FITNESS MODULE</h3><p>قسم منفصل، لا يضيف مهامًا إلى قائمتك اليومية تلقائيًا.</p></div>
+          <input class="toggle" type="checkbox" id="fitnessToggle" aria-label="تفعيل قسم اللياقة">
+        </div>
+        <div class="note" id="fitnessToggleNote" style="margin-top:12px">القسم غير مفعّل. فعّله فقط إذا كنت تريد استخدام سجل النشاط الرياضي.</div>
+        <button class="soft-btn hidden" id="openFitnessBtn" style="margin-top:12px">فتح FITNESS ←</button>
+      </div>
+      <div class="panel form-card" style="margin-bottom:13px">
+        <div class="section-head" style="margin:0 0 12px"><div><h2 style="font-size:15px">النسخ الاحتياطي</h2><p>احفظ بيانات هذا الجهاز أو استعدها</p></div><span>▣</span></div>
+        <div class="toolbar"><button class="soft-btn" id="exportBtn">تصدير البيانات</button><label class="soft-btn" for="importFile">استيراد نسخة</label><input class="hidden" type="file" id="importFile" accept="application/json"></div>
+      </div>
+      <div class="panel form-card">
+        <div class="section-head" style="margin:0 0 10px"><div><h2 style="font-size:15px">معلومات النظام</h2><p>البيانات محفوظة محليًا في المتصفح</p></div></div>
+        <p class="note">لا يوجد تسجيل دخول. البيانات لا تتزامن تلقائيًا بين الأجهزة. استخدم النسخ الاحتياطي لنقل بياناتك. لا تضع مفاتيح API أو أسرارًا في ملفات الموقع العامة.</p>
+        <button class="danger-btn" id="resetBtn" style="margin-top:10px">إعادة ضبط بيانات هذا الجهاز</button>
+      </div>
+    </section>
+
+    <section class="page" id="page-fitness" data-page="fitness">
+      <div class="page-title"><div class="eyebrow">OPTIONAL ACTIVITY MODULE</div><h2>VESPERA FITNESS</h2><p>سجل نشاطك الرياضي وجدولك الأسبوعي بشكل مستقل. اختر الراحة متى احتجت إليها.</p></div>
+      <div class="panel form-card" style="margin-bottom:13px">
+        <div class="section-head" style="margin:0 0 13px"><div><h2 style="font-size:15px">ملف النشاط</h2><p>حقول اختيارية لمتابعة المعلومات فقط</p></div><span>◈</span></div>
+        <div class="form-grid">
+          <div class="field"><label for="fitHeight">الطول (سم)</label><input class="input" id="fitHeight" type="number" min="80" max="230" placeholder="—"></div>
+          <div class="field"><label for="fitWeight">الوزن (كجم)</label><input class="input" id="fitWeight" type="number" min="20" max="250" step=".1" placeholder="—"></div>
+          <div class="field"><label for="fitAge">العمر</label><input class="input" id="fitAge" type="number" min="10" max="100" placeholder="—"></div>
+          <div class="field"><label>مؤشر BMI (رقمي فقط)</label><div class="input" id="bmiValue" style="color:var(--cyan)">—</div></div>
+        </div>
+        <p class="note" style="margin-top:10px">BMI مؤشر عام محدود، وليس تشخيصًا أو تقييمًا للجسم. لمن هم دون 18 عامًا يحتاج تفسيره إلى مختص ومعايير العمر والنمو. لا توجد أهداف وزن أو سعرات تلقائية في هذا القسم.</p>
+        <button class="primary-btn" id="saveFitnessProfile" style="margin-top:10px">حفظ البيانات</button>
+      </div>
+      <div class="panel form-card" style="margin-bottom:13px">
+        <div class="section-head" style="margin:0 0 12px"><div><h2 style="font-size:15px">جدول الأسبوع</h2><p>اختر نوع النشاط أو الراحة لكل يوم</p></div><span>▦</span></div>
+        <div class="grid" id="fitnessSchedule" style="grid-template-columns:repeat(2,minmax(0,1fr))"></div>
+        <button class="primary-btn" id="saveSchedule" style="margin-top:12px">حفظ الجدول</button>
+      </div>
+      <div class="panel form-card">
+        <div class="section-head" style="margin:0 0 12px"><div><h2 style="font-size:15px">سجل الأداء</h2><p>سجل التمرين والمدة أو التكرارات بدون أهداف إلزامية</p></div><span>＋</span></div>
+        <div class="form-grid">
+          <div class="field"><label for="exerciseType">النشاط</label><select class="select" id="exerciseType"><option>ضغط</option><option>عقلة</option><option>بلانك</option><option>جري</option><option>مشي</option><option>نشاط آخر</option></select></div>
+          <div class="field"><label for="exerciseValue">القيمة المسجلة</label><input class="input" id="exerciseValue" type="number" min="0" step=".1" placeholder="عدد / ثانية / دقيقة / كم"></div>
+        </div>
+        <div class="field" style="margin-top:10px"><label for="exerciseNote">ملاحظة (اختياري)</label><input class="input" id="exerciseNote" placeholder="مثال: تمرين خفيف أو يوم راحة"></div>
+        <button class="primary-btn" id="addExercise" style="margin-top:12px">＋ تسجيل النشاط</button>
+        <div class="section-head"><div><h2 style="font-size:14px">آخر التسجيلات</h2></div></div>
+        <div class="task-list" id="exerciseLog"></div><div class="empty hidden" id="exerciseEmpty">لا توجد تسجيلات بعد.</div>
+      </div>
+    </section>
+  </main>
+  <div class="footer">VESPERA V3 · BUILD YOUR SYSTEM · ONE STEP AT A TIME</div>
+</div>
+
+<nav class="bottom-nav" aria-label="التنقل الرئيسي">
+  <button class="nav-btn active" data-go="home"><span>⌂</span><span>الرئيسية</span></button>
+  <button class="nav-btn" data-go="tasks"><span>☷</span><span>المهام</span></button>
+  <button class="nav-btn" data-go="stats"><span>▦</span><span>الإحصائيات</span></button>
+  <button class="nav-btn" data-go="ai"><span>✧</span><span>VESPERA AI</span></button>
+  <button class="nav-btn" data-go="more"><span>•••</span><span>المزيد</span></button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<div class="modal-backdrop" id="confirmModal">
+  <div class="panel modal">
+    <h3 id="modalTitle">تأكيد</h3><p class="note" id="modalText">هل تريد المتابعة؟</p>
+    <div class="modal-actions"><button class="primary-btn" id="modalConfirm">تأكيد</button><button class="soft-btn" id="modalCancel">إلغاء</button></div>
+  </div>
+</div>
+
+<script src="./config.js"></script>
+<script>
+(() => {
+"use strict";
+const KEY = "vespera_v3_data";
+const $ = (id) => document.getElementById(id);
+const localDate = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const today = () => localDate(new Date());
+const dateOffset = (offset) => { const d=new Date(); d.setDate(d.getDate()+offset); return localDate(d); };
+const dayNames = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+const defaultData = () => ({
+  profile:{name:"PLAYER"},
+  xp:0, tasks:[], completedLog:[], fitnessEnabled:false,
+  fitness:{height:"",weight:"",age:"",schedule:["جيم","راحة","جيم","راحة","كارديو","راحة","نشاط خفيف"],logs:[]}
+});
+let data = loadData();
+let pendingConfirm = null;
+function loadData(){try{return {...defaultData(),...JSON.parse(localStorage.getItem(KEY)||"{}")};}catch{return defaultData();}}
+function save(){localStorage.setItem(KEY,JSON.stringify(data));renderAll();}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200);}
+function xpInfo(){const level=Math.floor(Math.max(0,data.xp)/100)+1;const current=data.xp%100;const ranks=["ROOKIE","SCOUT","RANGER","ELITE","VETERAN","MASTER","LEGEND"];return {level,current,rank:ranks[Math.min(ranks.length-1,Math.floor((level-1)/3))],left:100-current};}
+function todayTasks(){return data.tasks.filter(t=>t.date===today());}
+function completedTasks(){return data.tasks.filter(t=>t.done);}
+function dayCompleted(date){return data.tasks.some(t=>t.date===date&&t.done);}
+function addTask(title,xp=15){title=String(title||"").trim();if(!title)return false;data.tasks.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),title,xp:Math.max(5,Math.min(30,Number(xp)||15)),date:today(),done:false,created:Date.now()});save();return true;}
+function completeTask(id){const task=data.tasks.find(t=>t.id===id);if(!task)return;task.done=!task.done;if(task.done){data.xp+=task.xp;data.completedLog.push({date:today(),xp:task.xp,title:task.title});}else{data.xp=Math.max(0,data.xp-task.xp);const i=data.completedLog.findIndex(x=>x.title===task.title&&x.date===today()&&x.xp===task.xp);if(i>-1)data.completedLog.splice(i,1);}save();}
+function removeTask(id){data.tasks=data.tasks.filter(t=>t.id!==id);save();}
+function taskHTML(task,compact=false){return `<div class="task-row ${task.done?"done":""}" data-task="${escapeHTML(task.id)}"><button class="task-check" aria-label="تبديل الإنجاز" data-check="${escapeHTML(task.id)}">${task.done?"✓":""}</button><div class="task-copy"><strong>${escapeHTML(task.title)}</strong><small>${task.done?"مكتملة":"قيد الانتظار"} · ${task.date===today()?"اليوم":task.date}</small></div><span class="xp-pill">+${task.xp} XP</span>${compact?"":`<button class="icon-btn" style="width:32px;height:32px;font-size:13px" data-delete="${escapeHTML(task.id)}" aria-label="حذف">×</button>`}</div>`;}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function renderTasks(){
+ const todays=todayTasks();$("homeTasks").innerHTML=todays.slice(0,4).map(t=>taskHTML(t,true)).join("");$("homeEmpty").classList.toggle("hidden",todays.length>0);
+ $("allTasks").innerHTML=todays.map(t=>taskHTML(t)).join("");$("tasksEmpty").classList.toggle("hidden",todays.length>0);
+ $("tasksDateLabel").textContent="مهام "+new Date().toLocaleDateString("ar-EG",{weekday:"long",day:"numeric",month:"long"});
+}
+function renderWeeks(){
+ const make=(target)=>{target.innerHTML="";let count=0;for(let i=6;i>=0;i--){const date=dateOffset(-i);const active=dayCompleted(date);if(active)count++;const d=new Date(date+"T12:00:00");const name=dayNames[d.getDay()];target.insertAdjacentHTML("beforeend",`<div class="day-cell ${active?"active":""}"><b>${name.slice(0,2)}</b><i></i></div>`);}return count;};
+ $("weekDone").textContent=make($("homeWeek"));make($("statsWeek"));
+}
+function renderAll(){
+ const info=xpInfo(),allDone=completedTasks().length,today=todayTasks(),todayDone=today.filter(t=>t.done).length;
+ $("heroLevel").textContent=info.level;$("heroRank").textContent=info.rank;
+ $("totalXP").textContent=data.xp;$("completedCount").textContent=allDone;$("streakCount").textContent=Array.from({length:7},(_,i)=>dayCompleted(dateOffset(-i))).filter(Boolean).length;
+ $("todayProgress").textContent=`${todayDone}/${today.length}`;
+ $("hudXP").textContent=data.xp;$("hudLevel").textContent=info.level;$("hudCompleted").textContent=allDone;
+ $("hudDays").textContent=data.completedLog.map(x=>x.date).filter((v,i,a)=>a.indexOf(v)===i).length;
+ $("hudRate").textContent=(today.length?Math.round(todayDone/today.length*100):0)+"%";$("hudNext").textContent=info.left;
+ $("rankLabel").textContent=info.rank;$("levelProgressText").textContent=`${info.current} / 100 XP`;$("levelProgress").style.width=info.current+"%";
+ $("welcomeText").textContent=data.profile.name&&data.profile.name!=="PLAYER"?`أهلًا ${data.profile.name}، كل إنجاز صغير بيضيف خطوة لتقدمك.`:"كل إنجاز صغير بيضيف خطوة لتقدمك. اختار مهامك وابدأ يومك.";
+ $("playerName").value=data.profile.name==="PLAYER"?"":data.profile.name;
+ $("fitnessToggle").checked=!!data.fitnessEnabled;$("fitnessToggleNote").textContent=data.fitnessEnabled?"وحدة FITNESS مفعّلة. تظل منفصلة عن المهام اليومية.":"القسم غير مفعّل. فعّله فقط إذا كنت تريد استخدام سجل النشاط الرياضي.";
+ $("openFitnessBtn").classList.toggle("hidden",!data.fitnessEnabled);
+ $("fitnessBannerText").textContent=data.fitnessEnabled?"الوحدة مفعّلة. افتحها لتسجيل نشاطك وجدولك.":"وحدة رياضية اختيارية ومنفصلة عن مهامك اليومية.";
+ $("fitnessBannerBtn").textContent=data.fitnessEnabled?"فتح FITNESS":"إعداد الوحدة";
+ renderTasks();renderWeeks();renderFitness();
+}
+function navigate(page){
+ if(page==="fitness"&&!data.fitnessEnabled){toast("فعّل وحدة FITNESS أولًا من صفحة المزيد");navigate("more");return;}
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ const target=$("page-"+page);if(!target)return;target.classList.add("active");
+ document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.go===page||(page==="fitness"&&b.dataset.go==="more")));
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.addEventListener("click",e=>{
+ const go=e.target.closest("[data-go]");if(go){navigate(go.dataset.go);return;}
+ const check=e.target.closest("[data-check]");if(check){completeTask(check.dataset.check);return;}
+ const del=e.target.closest("[data-delete]");if(del){removeTask(del.dataset.delete);toast("تم حذف المهمة");return;}
+ const chat=e.target.closest("[data-chat]");if(chat){$("chatInput").value=chat.dataset.chat;$("chatForm").requestSubmit();}
+});
+$("addTaskBtn").addEventListener("click",()=>{const title=$("taskName").value.trim()||$("taskPreset").value;if(!title){toast("اكتب اسم المهمة أو اختر مهمة جاهزة");return;}if(addTask(title,$("taskXP").value)){ $("taskName").value="";$("taskPreset").value="";toast("تمت إضافة المهمة");}});
+$("taskPreset").addEventListener("change",()=>{if($("taskPreset").value)$("taskName").value=$("taskPreset").value;});
+$("clearDoneBtn").addEventListener("click",()=>{data.tasks=data.tasks.filter(t=>!(t.date===today()&&t.done));save();toast("تم إخفاء المهام المكتملة من قائمة اليوم");});
+$("settingsBtn").addEventListener("click",()=>navigate("more"));
+$("profileBtn").addEventListener("click",()=>navigate("more"));
+$("openFitnessBtn").addEventListener("click",()=>navigate("fitness"));
+$("fitnessBannerBtn").addEventListener("click",()=>{if(data.fitnessEnabled)navigate("fitness");else navigate("more");});
+$("saveProfileBtn").addEventListener("click",()=>{data.profile.name=$("playerName").value.trim()||"PLAYER";save();toast("تم حفظ الاسم");});
+$("fitnessToggle").addEventListener("change",e=>{data.fitnessEnabled=e.target.checked;save();toast(data.fitnessEnabled?"تم تفعيل FITNESS":"تم إيقاف FITNESS");if(data.fitnessEnabled)navigate("fitness");});
+function renderFitness(){
+ $("fitHeight").value=data.fitness.height||"";$("fitWeight").value=data.fitness.weight||"";$("fitAge").value=data.fitness.age||"";
+ const h=Number(data.fitness.height),w=Number(data.fitness.weight);$("bmiValue").textContent=h>0&&w>0?(w/((h/100)**2)).toFixed(1):"—";
+ $("fitnessSchedule").innerHTML=data.fitness.schedule.map((v,i)=>`<div class="field"><label>${dayNames[i]}</label><select class="select schedule-select" data-day="${i}">${["راحة","جيم","كارديو","مشي","نشاط خفيف"].map(o=>`<option ${o===v?"selected":""}>${o}</option>`).join("")}</select></div>`).join("");
+ const logs=data.fitness.logs.slice(-6).reverse();$("exerciseLog").innerHTML=logs.map(x=>`<div class="task-row"><div class="task-copy"><strong>${escapeHTML(x.type)} · ${escapeHTML(x.value)}</strong><small>${escapeHTML(x.date)}${x.note?" · "+escapeHTML(x.note):""}</small></div></div>`).join("");$("exerciseEmpty").classList.toggle("hidden",logs.length>0);
+}
+$("saveFitnessProfile").addEventListener("click",()=>{data.fitness.height=$("fitHeight").value;data.fitness.weight=$("fitWeight").value;data.fitness.age=$("fitAge").value;save();toast("تم حفظ بيانات النشاط");});
+$("saveSchedule").addEventListener("click",()=>{data.fitness.schedule=[...document.querySelectorAll(".schedule-select")].map(x=>x.value);save();toast("تم حفظ الجدول الأسبوعي");});
+$("addExercise").addEventListener("click",()=>{const value=Number($("exerciseValue").value);if(!Number.isFinite(value)||value<=0){toast("أدخل قيمة صحيحة للتسجيل");return;}data.fitness.logs.push({type:$("exerciseType").value,value,note:$("exerciseNote").value.trim(),date:today()});$("exerciseValue").value="";$("exerciseNote").value="";save();toast("تم تسجيل النشاط");});
+$("exportBtn").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="vespera-backup.json";a.click();URL.revokeObjectURL(a.href);});
+$("importFile").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;try{const imported=JSON.parse(await file.text());if(!imported||typeof imported!=="object"||!Array.isArray(imported.tasks))throw Error();data={...defaultData(),...imported};save();toast("تم استيراد النسخة");}catch{toast("ملف النسخة غير صالح");}e.target.value="";});
+function confirmBox(title,text,action){$("modalTitle").textContent=title;$("modalText").textContent=text;pendingConfirm=action;$("confirmModal").classList.add("show");}
+$("modalCancel").addEventListener("click",()=>$("confirmModal").classList.remove("show"));
+$("modalConfirm").addEventListener("click",()=>{if(pendingConfirm)pendingConfirm();pendingConfirm=null;$("confirmModal").classList.remove("show");});
+$("resetBtn").addEventListener("click",()=>confirmBox("إعادة ضبط البيانات","سيتم حذف بيانات VESPERA المحفوظة على هذا الجهاز فقط. صدّر نسخة احتياطية أولًا إذا أردت الاحتفاظ بها.",()=>{data=defaultData();save();toast("تمت إعادة الضبط");}));
+function appendBubble(text,who){const div=document.createElement("div");div.className="bubble "+who;div.textContent=text;$("chatLog").appendChild(div);$("chatLog").scrollTop=$("chatLog").scrollHeight;}
+function localAssistant(message){
+ const m=message.toLowerCase();
+ if(/أضف|ضيف|اضف/.test(m)&&/تاريخ|history/.test(m)){addTask("مذاكرة التاريخ",20);return "تمت إضافة مهمة «مذاكرة التاريخ» إلى مهام اليوم بقيمة 20 XP.";}
+ if(/^(أضف|اضف|ضيف)\s+مهمة/.test(message)){const title=message.replace(/^(أضف|اضف|ضيف)\s+مهمة\s*/,'').trim();if(title){addTask(title,15);return `تمت إضافة مهمة «${title}» إلى مهام اليوم بقيمة 15 XP.`;}}
+ if(/المتبقي|باقي|المهام/.test(m)){const left=todayTasks().filter(t=>!t.done);return left.length?`المهام المتبقية اليوم:\n${left.map(t=>"• "+t.title).join("\n")}`:"رائع! لا توجد مهام متبقية في قائمة اليوم.";}
+ if(/رتّب|رتب|نظم|نظّم/.test(m)){const list=todayTasks().filter(t=>!t.done);return list.length?`ابدأ بالمهمة الأقصر، ثم انتقل للأكثر تركيزًا:\n${list.map((t,i)=>`${i+1}. ${t.title}`).join("\n")}\nخذ فواصل قصيرة بين فترات العمل.`:"أضف مهامك أولًا، وسأساعدك في ترتيبها.";}
+ if(/تقدمي|التقدم|إحصائيات|احصائيات/.test(m)){const t=todayTasks();return `تقدمك اليوم: ${t.filter(x=>x.done).length} من ${t.length} مهام. إجمالي خبرتك ${data.xp} XP والمستوى ${xpInfo().level}.`;}
+ return "أقدر أساعدك في إضافة مهمة، عرض المهام المتبقية، أو ترتيب يومك. جرّب: «أضف مهمة مذاكرة التاريخ» أو «رتّب لي مهام اليوم».";
+}
+async function askCloud(message){
+ const url=window.VESPERA_CONFIG?.AI_WORKER_URL;
+ if(!url)return null;
+ const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message,context:{tasks:todayTasks().map(t=>({id:t.id,title:t.title,done:t.done})),xp:data.xp,level:xpInfo().level}})});
+ if(!response.ok)throw Error("تعذر الاتصال بالمساعد السحابي");
+ const payload=await response.json();return {reply:payload.reply||payload.response||"لم يصل رد مفهوم من المساعد.",action:payload.action||null};
+}
+$("chatForm").addEventListener("submit",async e=>{
+ e.preventDefault();const message=$("chatInput").value.trim();if(!message)return;$("chatInput").value="";appendBubble(message,"user");
+ const wait=document.createElement("div");wait.className="bubble bot";wait.textContent="جاري التفكير...";$("chatLog").appendChild(wait);
+ try{const cloud=await askCloud(message);wait.remove();appendBubble(cloud.reply||"حاضر.","bot");
+  if(cloud.action?.type==="add_task")confirmBox("تأكيد إضافة مهمة",`هل تريد إضافة «${cloud.action.title}» إلى مهام اليوم مقابل ${cloud.action.xp} XP؟`,()=>{addTask(cloud.action.title,cloud.action.xp);toast("تمت إضافة المهمة");});
+  if(cloud.action?.type==="complete_task"){const target=data.tasks.find(t=>t.id===cloud.action.id&&!t.done);if(target)confirmBox("تأكيد إكمال المهمة",`هل تريد تحديد «${target.title}» كمكتملة؟`,()=>{completeTask(target.id);toast("تم تحديث المهمة");});}
+ }
+ catch{wait.remove();appendBubble(localAssistant(message)+"\n\nتعذر الاتصال السحابي حاليًا، استخدمت المساعد المحلي.","bot");}
+});
+$("clearChatBtn").addEventListener("click",()=>{$("chatLog").innerHTML='<div class="bubble bot">بدأنا محادثة جديدة. كيف أساعدك في تنظيم يومك؟</div>';});
+const workerUrl=window.VESPERA_CONFIG?.AI_WORKER_URL;
+$("aiStatus").textContent=workerUrl?"عنوان Worker مضبوط — جرّب إرسال رسالة":"المساعد المحلي جاهز — الربط السحابي اختياري";
+renderAll();
+})();
+</script>
+</body>
+</html>

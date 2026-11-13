@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d1c"><title>VESPERA · Local Backup</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:24px 14px;color:#f4f7ff;font-family:system-ui,Tahoma,Arial;background:radial-gradient(circle at 15% 10%,#1b315b,transparent 40%),linear-gradient(145deg,#080d1c,#111735)}
+main{max-width:720px;margin:auto}.panel{padding:22px;border:1px solid rgba(210,230,255,.2);border-radius:24px;background:rgba(255,255,255,.07);backdrop-filter:blur(24px);box-shadow:0 20px 60px #0005}
+h1{margin:0 0 8px;letter-spacing:2px}p{color:#a9b7d2;line-height:1.8}.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}button,a,label{display:inline-block;border:1px solid #ffffff2a;border-radius:13px;padding:11px 15px;color:#f4f7ff;background:#ffffff0d;text-decoration:none;cursor:pointer;font:inherit}button.primary{background:linear-gradient(120deg,#8ee8ff,#b7a0ff);color:#071326;border:0;font-weight:800}.note{font-size:12px;color:#93a3c2;margin-top:18px}
+</style></head>
+<body><main><section class="panel">
+<div style="color:#8ee8ff;font-size:11px;letter-spacing:2px">LOCAL PLAYER DATA</div>
+<h1>VESPERA BACKUP</h1>
+<p>هذه الصفحة لإدارة نسخة البيانات المحفوظة في المتصفح الحالي فقط. لا توجد لوحة تحكم مركزية ولا حسابات لاعبين.</p>
+<div class="row"><button class="primary" id="export">تصدير نسخة احتياطية</button><label for="file">استيراد نسخة احتياطية</label><input id="file" type="file" accept="application/json" hidden><a href="./index.html">العودة للموقع</a></div>
+<p class="note">البيانات المحلية لا تنتقل تلقائيًا بين الأجهزة أو المتصفحات. احتفظ بنسخة JSON في مكان آمن.</p>
+<div id="status" class="note"></div>
+</section></main>
+<script>
+const KEY="vespera_v3_data";
+document.getElementById("export").onclick=()=>{const data=localStorage.getItem(KEY);if(!data){document.getElementById("status").textContent="لا توجد بيانات محفوظة بعد.";return;}const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));a.download="vespera-backup.json";a.click();URL.revokeObjectURL(a.href);};
+document.getElementById("file").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const obj=JSON.parse(await f.text());if(!obj||!Array.isArray(obj.tasks))throw Error();localStorage.setItem(KEY,JSON.stringify(obj));document.getElementById("status").textContent="تم الاستيراد. ارجع للموقع لإظهار البيانات."; }catch{document.getElementById("status").textContent="ملف غير صالح.";}e.target.value="";};
+</script></body></html>
